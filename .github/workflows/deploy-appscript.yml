@@ -1,0 +1,74 @@
+name: Deploy Apps Script
+
+# Fires on every merge/push to main that touches the Apps Script sources.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'appscript/**'
+      - 'src/seed/questions.json'
+      - '.github/workflows/deploy-appscript.yml'
+  workflow_dispatch: {}
+
+concurrency:
+  group: deploy-appscript
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install clasp
+        run: npm install -g @google/clasp@2.4.2
+
+      - name: Rebuild Questions.gs from questions.json
+        run: node appscript/build_questions_gs.mjs
+
+      - name: Write clasp credentials
+        env:
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          if [ -z "$CLASPRC_JSON" ]; then
+            echo "::error::CLASPRC_JSON secret is missing. See appscript/README.md."
+            exit 1
+          fi
+          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+
+      - name: Write .clasp.json for this project
+        env:
+          SCRIPT_ID: ${{ secrets.APPS_SCRIPT_ID }}
+        run: |
+          if [ -z "$SCRIPT_ID" ]; then
+            echo "::error::APPS_SCRIPT_ID secret is missing."
+            exit 1
+          fi
+          cat > appscript/.clasp.json <<EOF
+          {
+            "scriptId": "$SCRIPT_ID",
+            "rootDir": "."
+          }
+          EOF
+
+      - name: Push sources to Apps Script
+        working-directory: appscript
+        run: clasp push -f
+
+      - name: Deploy webapp
+        working-directory: appscript
+        env:
+          DEPLOYMENT_ID: ${{ secrets.APPS_SCRIPT_DEPLOYMENT_ID }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          if [ -n "$DEPLOYMENT_ID" ]; then
+            echo "Updating stable deployment $DEPLOYMENT_ID"
+            clasp deploy -i "$DEPLOYMENT_ID" -d "ci $GITHUB_SHA"
+          else
+            echo "APPS_SCRIPT_DEPLOYMENT_ID not set — creating a new deployment (new URL each run)."
+            clasp deploy -d "ci $GITHUB_SHA"
+          fi

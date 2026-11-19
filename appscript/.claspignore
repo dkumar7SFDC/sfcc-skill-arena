@@ -1,0 +1,7 @@
+# Push only Apps Script source — ignore local build helpers / docs.
+**/node_modules/**
+**/.git/**
+**/*.md
+**/build_questions_gs.mjs
+**/.claspignore
+**/README*

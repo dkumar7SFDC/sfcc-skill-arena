@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <base target="_top" />
+  <title>SFCC Skills Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:#0d0f14; --card:#141821; --card-2:#1a2030; --ink:#e7ecf3; --muted:#8c97ac;
+      --accent:#7c5cff; --gold:#ffcf5c; --good:#5be3a4; --bad:#ff6b7a;
+      --border:#222a3d; --radius:14px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: 'Figtree', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+    h1,h2,h3 { font-family: 'Syne', sans-serif; margin:0 0 .4em; }
+    h1 { font-size: 2.2rem; } h2 { font-size: 1.4rem; } h3 { font-size: 1.1rem; }
+    a { color: var(--accent); text-decoration: none; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 28px; border-bottom:1px solid var(--border); background:#0a0d13; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700; font-family:'Syne',sans-serif; color:var(--ink); }
+    .mark { background:var(--accent); color:#fff; padding:4px 8px; border-radius:6px; font-size:.75rem; }
+    .nav a { color:var(--muted); margin-right:18px; font-weight:600; }
+    .nav a.active, .nav a:hover { color:var(--ink); }
+    .nav a.hidden { display:none; }
+    .userchip { display:flex; align-items:center; gap:10px; }
+    .points-pill { background:var(--card-2); border:1px solid var(--border); padding:4px 10px; border-radius:999px; font-size:.8rem; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px; }
+    .hero { display:grid; grid-template-columns: 1.3fr 1fr; gap:36px; align-items:center; min-height: 80vh; }
+    .kicker { color:var(--accent); font-weight:700; text-transform:uppercase; font-size:.78rem; letter-spacing:.14em; margin-bottom:10px; }
+    .lede { color: var(--muted); line-height:1.6; }
+    .stats { display:flex; gap:16px; margin-top:20px; }
+    .stat { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 18px; }
+    .stat b { font-size:1.4rem; display:block; }
+    .stat span { color:var(--muted); font-size:.8rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; }
+    .auth-card .tabs { display:flex; gap:6px; margin-bottom:16px; }
+    .auth-card .tabs button { flex:1; background:var(--card-2); border:1px solid var(--border); color:var(--muted); padding:10px; border-radius:10px; font-weight:600; cursor:pointer; }
+    .auth-card .tabs button.active { color:var(--ink); background:#273048; }
+    label { display:block; color:var(--muted); font-size:.85rem; margin: 10px 0 4px; }
+    input, textarea, select { width:100%; background:#0d1220; color:var(--ink); border:1px solid var(--border); border-radius:10px; padding:10px 12px; font-family:inherit; font-size:.95rem; }
+    textarea { min-height: 70px; resize: vertical; }
+    .btn { background:var(--accent); color:white; border:none; padding:11px 18px; border-radius:10px; font-weight:700; cursor:pointer; font-family: inherit; }
+    .btn.full { width:100%; margin-top:14px; }
+    .btn.secondary { background:#2a334a; }
+    .btn.gold { background:var(--gold); color:#2a1d00; }
+    .btn:disabled { opacity:.6; cursor: not-allowed; }
+    .ghost { background:transparent; border:1px solid var(--border); color:var(--ink); padding:7px 12px; border-radius:10px; font-weight:600; cursor:pointer; }
+    .hidden { display:none !important; }
+    .error { color:var(--bad); background: rgba(255,107,122,.1); border:1px solid rgba(255,107,122,.25); padding: 10px; border-radius: 10px; margin-top: 10px; }
+    .demo { color:var(--muted); font-size:.82rem; margin-top:14px; line-height:1.6; }
+    .demo code { background:#0d1220; padding:1px 6px; border-radius:4px; }
+    .page-head { display:flex; justify-content:space-between; align-items:center; gap:24px; margin-bottom:22px; flex-wrap:wrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; }
+    .track-icon { font-size:1.8rem; color:var(--accent); }
+    .meta { display:flex; gap:14px; color:var(--muted); font-size:.82rem; margin-top:10px; flex-wrap:wrap; }
+    .bar { height:7px; background:#0d1220; border-radius:4px; overflow:hidden; margin-top:14px; }
+    .bar span { display:block; height:100%; background:var(--accent); }
+    .quiz-shell { display:grid; grid-template-columns: 260px 1fr; gap:24px; }
+    .quiz-side { position:sticky; top:20px; align-self:start; }
+    .q-dots { display:flex; flex-wrap:wrap; gap:6px; margin:12px 0 14px; }
+    .q-dots button { width:30px; height:30px; border-radius:7px; border:1px solid var(--border); background:#0d1220; color:var(--muted); cursor:pointer; }
+    .q-dots button.on { background:var(--accent); color:white; }
+    .q-dots button.done { border-color:var(--good); color:var(--good); }
+    .options { display:flex; flex-direction:column; gap:10px; margin-top:12px; }
+    .option { display:flex; gap:10px; background:#0d1220; border:1px solid var(--border); border-radius:10px; padding:12px; cursor:pointer; }
+    .option.picked { border-color: var(--accent); background:#161f3a; }
+    .option.right { border-color:var(--good); background: rgba(91,227,164,.08); }
+    .option.wrong { border-color:var(--bad); background: rgba(255,107,122,.08); }
+    .explain { color:var(--muted); font-size:.9rem; margin-top:12px; background:#0d1220; padding:10px; border-radius:8px; }
+    .badge { display:inline-block; padding:3px 9px; border-radius:999px; font-size:.72rem; background:#2a334a; color:var(--ink); margin-right:6px; }
+    .badge.easy { background: rgba(91,227,164,.18); color: var(--good); }
+    .badge.medium { background: rgba(255,207,92,.18); color: var(--gold); }
+    .badge.hard { background: rgba(255,107,122,.18); color: var(--bad); }
+    .actions { display:flex; gap:10px; justify-content:space-between; margin-top:20px; }
+    .table { width:100%; border-collapse: collapse; }
+    .table th, .table td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--border); }
+    .table th { color:var(--muted); font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.07em; }
+    .table tr.me td { background: rgba(124,92,255,.08); }
+    .filters { display:flex; gap:10px; }
+    .filters select { background:var(--card-2); }
+    .tiny { font-size:.82rem; color:var(--muted); }
+    .admin-grid { display:grid; grid-template-columns: 1fr 1fr; gap:22px; }
+    .option-row { display:flex; gap:10px; align-items:center; margin:6px 0; }
+    .option-row input[type="text"], .option-row input:not([type]) { flex:1; }
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; } .quiz-shell { grid-template-columns: 1fr; } .admin-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ---------- Landing / sign-in (shown when no session) ---------- -->
+<div id="landing">
+  <header class="topbar">
+    <a class="brand" href="javascript:void(0)"><span class="mark">SA</span> SFCC Skills Arena</a>
+  </header>
+  <main class="wrap hero">
+    <section>
+      <div class="kicker">Commerce Cloud practice ground</div>
+      <h1>Learn the path.<br/>Earn the points.<br/>Own the leaderboard.</h1>
+      <p class="lede">Tracks for B2C architecture, SFRA, OCAPI/SCAPI, hooks, catalog jobs, and Page Designer. Each question has a point value. First-time correct answers land on an append-only ledger so the team scoreboard stays honest.</p>
+      <div class="stats">
+        <div class="stat"><b>6</b><span>learning tracks</span></div>
+        <div class="stat"><b>30</b><span>graded questions</span></div>
+        <div class="stat"><b>1×</b><span>points per question</span></div>
+      </div>
+    </section>
+    <section class="card auth-card">
+      <div class="tabs">
+        <button type="button" id="tab-login" class="active">Sign in</button>
+        <button type="button" id="tab-register">Create account</button>
+      </div>
+      <form id="login-form">
+        <label>Email</label>
+        <input name="email" type="email" required />
+        <label>Password</label>
+        <input name="password" type="password" required />
+        <button class="btn full" type="submit">Enter the arena</button>
+      </form>
+      <form id="register-form" class="hidden">
+        <label>Name</label><input name="name" required minlength="2" />
+        <label>Email</label><input name="email" type="email" required />
+        <label>Password</label><input name="password" type="password" minlength="8" required />
+        <button class="btn full" type="submit">Join the team</button>
+      </form>
+      <div id="auth-error" class="error hidden"></div>
+      <div class="demo">
+        Demo: <code>alex@arena.local</code> / <code>demo1234</code><br/>
+        Admin: <code>admin@arena.local</code> / <code>ChangeMe!admin</code>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ---------- Signed-in shell ---------- -->
+<div id="shell" class="hidden">
+  <header class="topbar">
+    <a class="brand" href="#/tracks"><span class="mark">SA</span> SFCC Skills Arena</a>
+    <nav class="nav">
+      <a href="#/tracks" data-nav="tracks">Tracks</a>
+      <a href="#/leaderboard" data-nav="leaderboard">Leaderboard</a>
+      <a href="#/progress" data-nav="progress">My progress</a>
+      <a href="#/admin" data-nav="admin" id="admin-nav" class="hidden">Admin</a>
+    </nav>
+    <div class="userchip">
+      <span id="who"></span>
+      <span class="points-pill" id="my-points">0 pts</span>
+      <button class="ghost" id="logout" type="button">Sign out</button>
+    </div>
+  </header>
+  <main class="wrap" id="app">Loading…</main>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+ *  Client. Calls the Apps Script server via google.script.run.
+ *  Session token lives in localStorage and is sent with every call.
+ * ------------------------------------------------------------------ */
+
+var TOKEN_KEY = "arena_sid";
+function getToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
+function setToken(t) { localStorage.setItem(TOKEN_KEY, t); }
+function clearToken() { localStorage.removeItem(TOKEN_KEY); }
+
+function api(route, payload) {
+  payload = Object.assign({ token: getToken() }, payload || {});
+  return new Promise(function (resolve, reject) {
+    google.script.run
+      .withSuccessHandler(function (res) {
+        if (res && res.ok === false) reject(Object.assign(new Error(res.error || "Error"), { status: res.status }));
+        else resolve(res);
+      })
+      .withFailureHandler(function (e) { reject(e); })
+      .api(route, payload);
+  });
+}
+
+function $(sel, root) { return (root || document).querySelector(sel); }
+function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+function esc(v) {
+  return String(v == null ? "" : v)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+var ICONS = { architecture: "⬡", sfra: "⌘", apis: "⇄", hooks: "↯", data: "▣", experience: "◈", path: "◎" };
+
+var landing = $("#landing"), shell = $("#shell"), app = $("#app");
+var user = null, quizState = null;
+
+function showLanding() { landing.classList.remove("hidden"); shell.classList.add("hidden"); }
+function showShell() { landing.classList.add("hidden"); shell.classList.remove("hidden"); }
+
+// ---------- Landing / auth ----------
+$("#tab-login").addEventListener("click", function () {
+  $("#tab-login").classList.add("active"); $("#tab-register").classList.remove("active");
+  $("#login-form").classList.remove("hidden"); $("#register-form").classList.add("hidden");
+});
+$("#tab-register").addEventListener("click", function () {
+  $("#tab-register").classList.add("active"); $("#tab-login").classList.remove("active");
+  $("#register-form").classList.remove("hidden"); $("#login-form").classList.add("hidden");
+});
+
+function showAuthError(err) {
+  var box = $("#auth-error");
+  box.textContent = err.message || "Error";
+  box.classList.remove("hidden");
+}
+
+$("#login-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  $("#auth-error").classList.add("hidden");
+  var fd = new FormData(e.target);
+  api("auth.login", { email: fd.get("email"), password: fd.get("password") })
+    .then(function (r) { setToken(r.token); return bootSignedIn(); })
+    .catch(showAuthError);
+});
+$("#register-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+  $("#auth-error").classList.add("hidden");
+  var fd = new FormData(e.target);
+  api("auth.register", { name: fd.get("name"), email: fd.get("email"), password: fd.get("password") })
+    .then(function (r) { setToken(r.token); return bootSignedIn(); })
+    .catch(showAuthError);
+});
+
+// ---------- Shell ----------
+$("#logout").addEventListener("click", function () {
+  api("auth.logout").catch(function () {}).then(function () {
+    clearToken(); user = null; location.hash = ""; showLanding();
+  });
+});
+
+function setNav(name) {
+  $$("[data-nav]").forEach(function (el) {
+    el.classList.toggle("active", el.getAttribute("data-nav") === name);
+  });
+}
+
+function parseHash() {
+  var raw = (location.hash || "").replace(/^#\/?/, "");
+  var parts = raw.split("?");
+  var segs = parts[0].split("/");
+  var query = {};
+  if (parts[1]) parts[1].split("&").forEach(function (p) {
+    var kv = p.split("="); query[decodeURIComponent(kv[0])] = decodeURIComponent(kv[1] || "");
+  });
+  return { route: segs[0] || "tracks", a: segs[1], b: segs[2], query: query };
+}
+
+function render() {
+  if (!user) return;
+  var h = parseHash();
+  if (h.route === "quiz") return renderQuiz(h.a);
+  if (h.route === "result") return renderResult();
+  if (h.route === "leaderboard") return renderLeaderboard(h.query);
+  if (h.route === "progress") return renderProgress();
+  if (h.route === "admin") return renderAdmin();
+  return renderTracks();
+}
+window.addEventListener("hashchange", render);
+
+// ---------- Pages ----------
+function renderTracks() {
+  setNav("tracks");
+  app.textContent = "Loading…";
+  api("tracks.list").then(function (data) {
+    app.innerHTML =
+      '<div class="page-head"><div>' +
+      '<div class="kicker">Learning paths</div>' +
+      '<h1>Pick a track and start learning</h1>' +
+      '<p class="tiny">Points are awarded the first time you answer a question correctly. Retakes still train you, they just don’t farm the board.</p>' +
+      '</div></div>' +
+      '<div class="grid">' +
+      data.tracks.map(function (t) {
+        var pct = t.question_count ? Math.round((t.mastered_count / t.question_count) * 100) : 0;
+        return '<article class="card">' +
+          '<div class="track-icon">' + (ICONS[t.icon] || ICONS.path) + '</div>' +
+          '<h3>' + esc(t.title) + '</h3>' +
+          '<p class="tiny">' + esc(t.description) + '</p>' +
+          '<div class="meta">' +
+            '<span>' + t.question_count + ' questions</span>' +
+            '<span>' + t.available_points + ' pts in play</span>' +
+            '<span>' + t.earned_points + ' earned</span>' +
+          '</div>' +
+          '<div class="bar"><span style="width:' + pct + '%"></span></div>' +
+          '<button class="btn full" data-start="' + t.id + '">' +
+            (t.mastered_count ? 'Continue / retake' : 'Start track') +
+          '</button>' +
+        '</article>';
+      }).join("") +
+      '</div>';
+    $$("[data-start]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        btn.disabled = true;
+        api("tracks.start", { trackId: Number(btn.getAttribute("data-start")) })
+          .then(function (data) {
+            quizState = Object.assign({}, data, { index: 0 });
+            location.hash = "#/quiz/" + data.attemptId;
+          })
+          .catch(function (e) { alert(e.message); btn.disabled = false; });
+      });
+    });
+  }).catch(function (e) { app.textContent = e.message; });
+}
+
+function renderQuiz(attemptId) {
+  setNav("tracks");
+  if (!quizState || String(quizState.attemptId) !== String(attemptId)) {
+    app.innerHTML =
+      '<div class="card"><h2>Resume this attempt from the tracks page.</h2>' +
+      '<p class="tiny">Refreshing in the middle of a quiz drops the in-memory state. Your saved answers are still safe on the server — just click the track again to continue.</p>' +
+      '<a class="btn" href="#/tracks">Back to tracks</a></div>';
+    return;
+  }
+  drawQuestion();
+}
+
+function drawQuestion() {
+  var qs = quizState.questions, i = quizState.index, q = qs[i];
+  var selected = new Set(q.selectedOptionIds || []);
+  app.innerHTML =
+    '<div class="quiz-shell">' +
+      '<aside class="card quiz-side">' +
+        '<div class="kicker">Question ' + (i + 1) + ' / ' + qs.length + '</div>' +
+        '<h3>Stay honest</h3>' +
+        '<p class="tiny">Answers are stored on the server. Correctness is revealed only after you finish.</p>' +
+        '<div class="q-dots">' + qs.map(function (item, idx) {
+          var cls = (idx === i ? "on " : "") + ((item.selectedOptionIds && item.selectedOptionIds.length) ? "done" : "");
+          return '<button type="button" class="' + cls + '" data-jump="' + idx + '">' + (idx + 1) + '</button>';
+        }).join("") + '</div>' +
+        '<button class="btn gold full" id="finish">Submit track</button>' +
+      '</aside>' +
+      '<section class="card">' +
+        '<div><span class="badge ' + esc(q.difficulty) + '">' + esc(q.difficulty) + '</span>' +
+        '<span class="badge">' + q.points + ' pts</span>' +
+        '<span class="badge">' + (q.type === "multi" ? "Select all that apply" : "Single choice") + '</span></div>' +
+        '<h2 style="margin:18px 0 8px">' + esc(q.text) + '</h2>' +
+        '<div class="options">' + q.options.map(function (o) {
+          return '<label class="option ' + (selected.has(o.id) ? "picked" : "") + '">' +
+            '<input type="' + (q.type === "multi" ? "checkbox" : "radio") + '" name="opt" value="' + o.id + '" ' + (selected.has(o.id) ? "checked" : "") + ' />' +
+            '<span>' + esc(o.text) + '</span></label>';
+        }).join("") + '</div>' +
+        '<div class="actions">' +
+          '<button class="btn secondary" id="prev" ' + (i === 0 ? "disabled" : "") + '>Back</button>' +
+          '<button class="btn" id="next">' + (i === qs.length - 1 ? "Review & submit" : "Next") + '</button>' +
+        '</div>' +
+      '</section>' +
+    '</div>';
+
+  function collect() { return $$("input[name=opt]:checked").map(function (el) { return Number(el.value); }); }
+  function persist() {
+    var optionIds = collect();
+    q.selectedOptionIds = optionIds;
+    return api("attempts.answer", { attemptId: quizState.attemptId, questionId: q.id, optionIds: optionIds });
+  }
+
+  $$("input[name=opt]").forEach(function (input) {
+    input.addEventListener("change", function () {
+      $$(".option").forEach(function (el) { el.classList.toggle("picked", el.querySelector("input").checked); });
+      persist().catch(function (e) { console.error(e); });
+    });
+  });
+  $$("[data-jump]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      persist().finally(function () {
+        quizState.index = Number(btn.getAttribute("data-jump")); drawQuestion();
+      });
+    });
+  });
+  $("#prev").addEventListener("click", function () {
+    persist().finally(function () { quizState.index -= 1; drawQuestion(); });
+  });
+  $("#next").addEventListener("click", function () {
+    persist().finally(function () {
+      if (i === qs.length - 1) return finishQuiz();
+      quizState.index += 1; drawQuestion();
+    });
+  });
+  $("#finish").addEventListener("click", finishQuiz);
+}
+
+function finishQuiz() {
+  var answers = quizState.questions.map(function (q) {
+    return { questionId: q.id, optionIds: q.selectedOptionIds || [] };
+  });
+  api("attempts.finish", { attemptId: quizState.attemptId, answers: answers })
+    .then(function (result) {
+      sessionStorage.setItem("last-result", JSON.stringify(result));
+      user.total_points = result.totalPoints;
+      $("#my-points").textContent = user.total_points + " pts";
+      quizState = null;
+      location.hash = "#/result";
+    })
+    .catch(function (e) { alert(e.message); });
+}
+
+function renderResult() {
+  setNav("tracks");
+  var raw = sessionStorage.getItem("last-result");
+  if (!raw) { app.innerHTML = '<p>No result to show. <a href="#/tracks">Back to tracks</a></p>'; return; }
+  var r = JSON.parse(raw);
+  var pct = r.maxScore ? Math.round((r.score / r.maxScore) * 100) : 0;
+  app.innerHTML =
+    '<div class="page-head"><div>' +
+      '<div class="kicker">' + (r.passed ? "Passed" : "Keep training") + '</div>' +
+      '<h1>' + r.score + ' / ' + r.maxScore + ' · ' + pct + '%</h1>' +
+      '<p class="tiny">This run scored ' + r.score + ' quiz points. You banked <b>' + r.newlyEarned + '</b> new arena points (first-time corrects only).</p>' +
+    '</div><a class="btn" href="#/tracks">More tracks</a></div>' +
+    '<div class="grid">' + r.review.map(function (q) {
+      return '<article class="card">' +
+        '<div><span class="badge ' + (q.isCorrect ? "easy" : "hard") + '">' + (q.isCorrect ? "Correct" : "Incorrect") + '</span>' +
+        '<span class="badge">' + q.pointsAwarded + ' pts banked</span></div>' +
+        '<h3 style="margin:12px 0">' + esc(q.text) + '</h3>' +
+        '<div class="options">' + q.options.map(function (o) {
+          var picked = q.selectedOptionIds.indexOf(o.id) >= 0;
+          var cls = o.isCorrect ? "right" : (picked ? "wrong" : "");
+          return '<div class="option ' + cls + '">' + esc(o.text) + '</div>';
+        }).join("") + '</div>' +
+        (q.explanation ? '<div class="explain">' + esc(q.explanation) + '</div>' : '') +
+      '</article>';
+    }).join("") + '</div>';
+}
+
+function renderLeaderboard(query) {
+  setNav("leaderboard");
+  var trackId = query.trackId || "";
+  var win = query.window || "all";
+  app.textContent = "Loading…";
+  api("leaderboard.list", { trackId: trackId || null, window: win }).then(function (data) {
+    app.innerHTML =
+      '<div class="page-head"><div>' +
+        '<div class="kicker">Team board</div>' +
+        '<h1>Who’s climbing the stack</h1>' +
+        '<p class="tiny">Totals come from the points ledger. Admin users are excluded so the board stays a developer race.</p>' +
+      '</div><div class="filters">' +
+        '<select id="track-filter"><option value="">All tracks</option>' +
+          data.tracks.map(function (t) { return '<option value="' + t.id + '" ' + (String(t.id) === String(trackId) ? "selected" : "") + '>' + esc(t.title) + '</option>'; }).join("") +
+        '</select>' +
+        '<select id="window-filter">' +
+          '<option value="all" ' + (win === "all" ? "selected" : "") + '>All time</option>' +
+          '<option value="7d" ' + (win === "7d" ? "selected" : "") + '>Last 7 days</option>' +
+        '</select>' +
+      '</div></div>' +
+      '<div class="card">' +
+        '<table class="table"><thead><tr><th>#</th><th>Developer</th><th>Points</th><th>Mastered</th></tr></thead><tbody>' +
+          (data.entries.length ? data.entries.map(function (row, i) {
+            return '<tr class="' + (row.user_id === user.id ? "me" : "") + '">' +
+              '<td>' + (i + 1) + '</td>' +
+              '<td>' + esc(row.name) + (row.user_id === user.id ? ' · you' : '') + '</td>' +
+              '<td>' + row.points + '</td>' +
+              '<td>' + row.mastered + (row.tracks != null ? ' · ' + row.tracks + ' tracks' : '') + '</td>' +
+            '</tr>';
+          }).join("") : '<tr><td colspan="4">No scores yet.</td></tr>') +
+        '</tbody></table>' +
+      '</div>';
+    function apply() {
+      var t = $("#track-filter").value, w = $("#window-filter").value;
+      var qs = [];
+      if (t) qs.push("trackId=" + encodeURIComponent(t));
+      if (w === "7d") qs.push("window=7d");
+      location.hash = "#/leaderboard" + (qs.length ? "?" + qs.join("&") : "");
+    }
+    $("#track-filter").addEventListener("change", apply);
+    $("#window-filter").addEventListener("change", apply);
+  }).catch(function (e) { app.textContent = e.message; });
+}
+
+function renderProgress() {
+  setNav("progress");
+  app.textContent = "Loading…";
+  api("me.progress").then(function (data) {
+    $("#my-points").textContent = data.user.total_points + " pts";
+    app.innerHTML =
+      '<div class="page-head"><div>' +
+        '<div class="kicker">Your ledger</div>' +
+        '<h1>' + esc(data.user.name) + '</h1>' +
+        '<p class="tiny">' + data.user.total_points + ' arena points · ' + data.user.questions_mastered + ' questions mastered</p>' +
+      '</div></div>' +
+      '<div class="grid">' + data.tracks.map(function (t) {
+        var pct = t.question_count ? Math.round((t.mastered_count / t.question_count) * 100) : 0;
+        return '<article class="card">' +
+          '<div class="track-icon">' + (ICONS[t.icon] || ICONS.path) + '</div>' +
+          '<h3>' + esc(t.title) + '</h3>' +
+          '<p class="tiny">' + t.mastered_count + ' / ' + t.question_count + ' mastered · ' + t.earned_points + ' / ' + t.available_points + ' pts</p>' +
+          '<div class="bar"><span style="width:' + pct + '%"></span></div>' +
+        '</article>';
+      }).join("") + '</div>' +
+      '<h2 style="margin:32px 0 12px">Recent attempts</h2>' +
+      '<div class="card"><table class="table"><thead><tr><th>When</th><th>Track</th><th>Score</th><th>Result</th></tr></thead><tbody>' +
+        (data.attempts.length ? data.attempts.map(function (a) {
+          return '<tr><td>' + esc(a.finished_at) + '</td><td>' + esc(a.track_title) + '</td><td>' + a.score + ' / ' + a.max_score + '</td><td>' + (a.passed ? "Pass" : "Retry") + '</td></tr>';
+        }).join("") : '<tr><td colspan="4">No finished attempts yet.</td></tr>') +
+      '</tbody></table></div>' +
+      '<h2 style="margin:32px 0 12px">Points ledger</h2>' +
+      '<div class="card"><table class="table"><thead><tr><th>When</th><th>Reason</th><th>Track</th><th>Pts</th></tr></thead><tbody>' +
+        (data.ledger.length ? data.ledger.map(function (l) {
+          return '<tr><td>' + esc(l.created_at) + '</td><td>' + esc(l.reason) + '</td><td>' + esc(l.track_title || "—") + '</td><td>' + l.points + '</td></tr>';
+        }).join("") : '<tr><td colspan="4">No points yet.</td></tr>') +
+      '</tbody></table></div>';
+  }).catch(function (e) { app.textContent = e.message; });
+}
+
+function renderAdmin() {
+  setNav("admin");
+  if (user.role !== "admin") { app.innerHTML = "<p>Admins only.</p>"; return; }
+  app.textContent = "Loading…";
+  Promise.all([api("admin.questions"), api("admin.users")]).then(function (both) {
+    var data = both[0], people = both[1];
+    app.innerHTML =
+      '<div class="page-head"><div>' +
+        '<div class="kicker">Question bank</div>' +
+        '<h1>Manage tracks</h1>' +
+        '<p class="tiny">Add questions with points. The ledger still awards each question once per developer.</p>' +
+      '</div></div>' +
+      '<div class="admin-grid">' +
+        '<form class="card" id="q-form">' +
+          '<h3>New question</h3>' +
+          '<label>Track</label><select name="trackId" required>' +
+            data.tracks.map(function (t) { return '<option value="' + t.id + '">' + esc(t.title) + '</option>'; }).join("") +
+          '</select>' +
+          '<label>Question</label><textarea name="text" required></textarea>' +
+          '<label>Type</label><select name="type"><option value="single">Single</option><option value="multi">Multi</option></select>' +
+          '<label>Difficulty</label><select name="difficulty">' +
+            '<option value="easy">Easy · 10</option>' +
+            '<option value="medium" selected>Medium · 15</option>' +
+            '<option value="hard">Hard · 25</option>' +
+          '</select>' +
+          '<label>Points</label><input name="points" type="number" min="1" value="15" />' +
+          '<label>Explanation</label><textarea name="explanation"></textarea>' +
+          '<label>Options (check the correct ones)</label>' +
+          '<div id="opt-box">' + [0,1,2,3].map(function (i) {
+            return '<div class="option-row">' +
+              '<input name="opt-text-' + i + '" placeholder="Option ' + (i + 1) + '" />' +
+              '<label class="tiny"><input type="checkbox" name="opt-ok-' + i + '" /> correct</label>' +
+            '</div>';
+          }).join("") + '</div>' +
+          '<button class="btn full" type="submit">Save question</button>' +
+          '<div id="admin-msg" class="tiny"></div>' +
+        '</form>' +
+        '<div>' +
+          '<div class="card" style="margin-bottom:18px"><h3>Team</h3><table class="table">' +
+            people.users.map(function (u2) { return '<tr><td>' + esc(u2.name) + '</td><td>' + esc(u2.role) + '</td><td>' + u2.total_points + ' pts</td></tr>'; }).join("") +
+          '</table></div>' +
+          '<div class="card" style="max-height:520px; overflow:auto"><h3>Bank (' + data.questions.length + ')</h3>' +
+            data.questions.map(function (q) { return '<p class="tiny"><b>' + esc(q.track_title) + '</b> · ' + q.points + ' pts<br/>' + esc(q.text) + '</p>'; }).join("") +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    $("#q-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var fd = new FormData(e.target);
+      var difficulty = fd.get("difficulty");
+      var defaultPts = difficulty === "easy" ? 10 : (difficulty === "hard" ? 25 : 15);
+      var options = [0,1,2,3].map(function (i) {
+        return { text: String(fd.get("opt-text-" + i) || "").trim(), correct: fd.get("opt-ok-" + i) === "on" };
+      }).filter(function (o) { return o.text; });
+      api("admin.addQuestion", {
+        trackId: Number(fd.get("trackId")), text: fd.get("text"),
+        type: fd.get("type"), difficulty: difficulty,
+        points: Number(fd.get("points")) || defaultPts,
+        explanation: fd.get("explanation"), options: options
+      }).then(function () {
+        $("#admin-msg").textContent = "Saved.";
+        renderAdmin();
+      }).catch(function (err) { $("#admin-msg").textContent = err.message; });
+    });
+  }).catch(function (e) { app.textContent = e.message; });
+}
+
+// ---------- Boot ----------
+function bootSignedIn() {
+  return api("auth.me").then(function (r) {
+    user = r.user;
+    $("#who").textContent = user.name;
+    $("#my-points").textContent = user.total_points + " pts";
+    $("#admin-nav").classList.toggle("hidden", user.role !== "admin");
+    showShell();
+    if (!location.hash) location.hash = "#/tracks";
+    render();
+  });
+}
+
+(function init() {
+  if (!getToken()) { showLanding(); return; }
+  bootSignedIn().catch(function () {
+    clearToken(); showLanding();
+  });
+})();
+</script>
+</body>
+</html>
