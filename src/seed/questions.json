@@ -1,0 +1,461 @@
+{
+  "tracks": [
+    {
+      "slug": "architecture",
+      "title": "B2C Architecture & Platform",
+      "description": "Realms, instances, sites, cartridges, Business Manager, and how code moves from sandbox to production.",
+      "icon": "architecture",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 1,
+      "questions": [
+        {
+          "text": "In B2C Commerce Cloud, what is the relationship between a realm, an instance, and a site?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "A realm is the customer’s Commerce Cloud account. It contains instances (sandbox, development, staging, production). Each instance can host one or more sites (storefronts) that share code but have their own catalog, content, and preferences.",
+          "options": [
+            { "text": "A site contains many realms; each realm is one storefront URL", "correct": false },
+            { "text": "A realm contains instances; each instance can host one or more sites", "correct": true },
+            { "text": "An instance is a Business Manager user; a site is a cartridge", "correct": false },
+            { "text": "Realm, instance, and site are three names for the same environment", "correct": false }
+          ]
+        },
+        {
+          "text": "Which statement about the cartridge path is correct?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Cartridges are searched from left to right. The first match wins for controllers, templates, and static files, which is how custom cartridges overlay SFRA app_storefront_base.",
+          "options": [
+            { "text": "Cartridges on the right always override cartridges on the left", "correct": false },
+            { "text": "Only the last cartridge in the path is used at runtime", "correct": false },
+            { "text": "The path is searched left to right; the first matching resource wins", "correct": true },
+            { "text": "Cartridge order is ignored unless the file is named overlay.js", "correct": false }
+          ]
+        },
+        {
+          "text": "Which environments are part of a typical B2C Commerce code promotion path?",
+          "type": "multi",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "The usual path is sandbox → development → staging → production. Staging is the source for production replication. Primary instance types are development, staging, and production; sandboxes are extra on-demand instances.",
+          "options": [
+            { "text": "Sandbox", "correct": true },
+            { "text": "Development", "correct": true },
+            { "text": "Staging", "correct": true },
+            { "text": "Production", "correct": true },
+            { "text": "Shopify Plus preview", "correct": false }
+          ]
+        },
+        {
+          "text": "What is replicated from staging to production?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Code replication moves cartridges. Data replication moves catalogs, content, price books, and similar site data. They are separate operations. Global admin data and some logs are not replicated.",
+          "options": [
+            { "text": "Only Business Manager users and their passwords", "correct": false },
+            { "text": "Code and site data, as two separate replication processes", "correct": true },
+            { "text": "The entire realm, including every sandbox", "correct": false },
+            { "text": "Nothing — production is edited live in Business Manager", "correct": false }
+          ]
+        },
+        {
+          "text": "A storefront request needs a custom controller. Where does the platform look first?",
+          "type": "single",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "Request handling uses the site’s cartridge path. Custom storefront cartridges are typically listed before app_storefront_base so your controller overrides the SFRA one. Business Manager cartridges are not on the storefront path.",
+          "options": [
+            { "text": "Only bm_app_storefront_base, because Business Manager owns routing", "correct": false },
+            { "text": "modules.cartridge, then npm node_modules, then SFRA", "correct": false },
+            { "text": "The site cartridge path, left to right, until a matching controller is found", "correct": true },
+            { "text": "GitHub, then the active code version’s last uploaded zip", "correct": false }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "sfra",
+      "title": "SFRA & Controllers",
+      "description": "Storefront Reference Architecture, middleware chains, superModule, and how to extend routes without forking base.",
+      "icon": "sfra",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 2,
+      "questions": [
+        {
+          "text": "What is the recommended way to customize an SFRA controller in a custom cartridge?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Use module.superModule to get the base controller, then server.extend() and append/prepend/replace a route. Copying the entire controller into the custom cartridge makes upgrades painful.",
+          "options": [
+            { "text": "Copy the whole controller from app_storefront_base and edit it in place", "correct": false },
+            { "text": "Edit app_storefront_base directly and commit it to the custom repo", "correct": false },
+            { "text": "Require module.superModule and extend the route with append/prepend/replace", "correct": true },
+            { "text": "Replace the controller with an ISML include from SiteGenesis", "correct": false }
+          ]
+        },
+        {
+          "text": "In SFRA, what does server.append('Show', ...) do?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "append adds middleware after the existing chain for that route. prepend runs before. replace swaps the whole chain. next() is still required unless you end the request.",
+          "options": [
+            { "text": "Runs extra middleware after the base route’s middleware", "correct": true },
+            { "text": "Deletes the base route and registers a new one", "correct": false },
+            { "text": "Compiles the template before the controller runs", "correct": false },
+            { "text": "Adds the route to OCAPI’s shop API", "correct": false }
+          ]
+        },
+        {
+          "text": "Which of these are true of SFRA compared with SiteGenesis?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "SFRA is cartridge-based, uses a Node-like server module for controllers, Bootstrap 4-era storefront CSS, and is designed to be extended rather than forked. SiteGenesis used pipelines (and later controllers) with a different overlay model.",
+          "options": [
+            { "text": "SFRA controllers are JavaScript modules using a middleware chain", "correct": true },
+            { "text": "Customizations should overlay base via the cartridge path instead of editing base", "correct": true },
+            { "text": "SFRA still requires UX Studio pipelines for every new route", "correct": false },
+            { "text": "ISML remains the server-side template language", "correct": true }
+          ]
+        },
+        {
+          "text": "Why is module.superModule important when extending SFRA?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "superModule resolves the next cartridge to the right on the path that defines the same file. That lets your custom cartridge wrap the base implementation instead of duplicating it.",
+          "options": [
+            { "text": "It loads the next matching file further down the cartridge path", "correct": true },
+            { "text": "It compiles SCSS in the parent theme", "correct": false },
+            { "text": "It creates a Business Manager module for the current user", "correct": false },
+            { "text": "It disables caching for the rest of the request", "correct": false }
+          ]
+        },
+        {
+          "text": "An SFRA route middleware forgets to call next() and does not call res.render / res.json. What happens?",
+          "type": "single",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "The middleware chain stalls. The shopper never gets a response unless something else ends the request. Always call next() or finish the response.",
+          "options": [
+            { "text": "SFRA automatically renders default.isml", "correct": false },
+            { "text": "The request hangs because the chain never continues or completes", "correct": true },
+            { "text": "The platform falls back to the next cartridge’s controller", "correct": false },
+            { "text": "A 302 to Home-Show is issued", "correct": false }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "apis",
+      "title": "OCAPI & SCAPI",
+      "description": "Shop vs Data APIs, auth, hooks, and when to use Open Commerce API versus Salesforce Commerce API.",
+      "icon": "apis",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 3,
+      "questions": [
+        {
+          "text": "What is the main difference between OCAPI and SCAPI?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "OCAPI is the older REST API (shop, data, meta). SCAPI (Salesforce Commerce API) is the newer, better-versioned headless API family. New headless work should prefer SCAPI; OCAPI remains widely used.",
+          "options": [
+            { "text": "OCAPI is only for Business Manager; SCAPI is only for jobs", "correct": false },
+            { "text": "SCAPI is the newer headless Commerce API; OCAPI is the older REST API", "correct": true },
+            { "text": "They are identical payloads with different hostnames", "correct": false },
+            { "text": "OCAPI requires GraphQL; SCAPI is SOAP", "correct": false }
+          ]
+        },
+        {
+          "text": "Which OCAPI families exist?",
+          "type": "multi",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "OCAPI has Shop (storefront shopper resources), Data (Business Manager / back-office resources), and Meta (describe the API). There is no ‘Pipeline API’ family.",
+          "options": [
+            { "text": "Shop API", "correct": true },
+            { "text": "Data API", "correct": true },
+            { "text": "Meta API", "correct": true },
+            { "text": "Pipeline API", "correct": false }
+          ]
+        },
+        {
+          "text": "How do headless clients typically authenticate to SCAPI Shopper APIs?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "SCAPI uses Account Manager / SLAS (Shopper Login and API Access Service). Shopper APIs use SLAS access tokens (guest or registered). BM user / API client credentials are for admin/data-style APIs, not the shopper session itself.",
+          "options": [
+            { "text": "A Business Manager CSRF token in a cookie", "correct": false },
+            { "text": "SLAS OAuth access tokens (guest or registered shopper)", "correct": true },
+            { "text": "SSH keys uploaded to the WebDAV endpoint", "correct": false },
+            { "text": "The storefront session JWT is minted by ISML", "correct": false }
+          ]
+        },
+        {
+          "text": "You need to customize OCAPI Shop basket behavior. Which extension point is the usual approach?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "dw.ocapi.shop.* hooks (configured in hooks.json) let you modify documents before/after OCAPI operations. A custom controller is a different surface and does not intercept OCAPI.",
+          "options": [
+            { "text": "Replace app_storefront_base/cart.js and hope OCAPI calls it", "correct": false },
+            { "text": "Register dw.ocapi.shop.* hooks in hooks.json", "correct": true },
+            { "text": "Edit the OCAPI specification in Account Manager", "correct": false },
+            { "text": "Put a rewrite rule in the eCDN for /dw/shop/", "correct": false }
+          ]
+        },
+        {
+          "text": "Which statements about OCAPI configuration are correct?",
+          "type": "multi",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "OCAPI settings live in Business Manager (Administration > Site Development > Open Commerce API Settings) per site and per API type. You whitelist resources, methods, and client IDs. Versioned URLs include the API version. CORS and trusted origins are part of making browser clients work.",
+          "options": [
+            { "text": "Client IDs must be allowed in the OCAPI settings for the resource", "correct": true },
+            { "text": "Shop and Data APIs have separate configuration documents", "correct": true },
+            { "text": "Any client ID can call any resource once OCAPI is enabled globally", "correct": false },
+            { "text": "API version is part of the request URL", "correct": true }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "customization",
+      "title": "Hooks, ISML & Cartridges",
+      "description": "hooks.json, ISML, custom objects vs system objects, and how overlay cartridges should be structured.",
+      "icon": "hooks",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 4,
+      "questions": [
+        {
+          "text": "Where do you declare that a cartridge implements a hook?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "hooks.json in the cartridge maps hook names (dw.order.calculate, dw.ocapi.shop.basket.afterPOST, app.template.htmlHead, etc.) to a script module. The cartridge must be on the path for the hook to run.",
+          "options": [
+            { "text": "package.json under the \"sfccHooks\" key", "correct": false },
+            { "text": "hooks.json in the cartridge, mapping hook names to scripts", "correct": true },
+            { "text": "A Business Manager preference named Hook Enablement", "correct": false },
+            { "text": "The site’s hostname alias file", "correct": false }
+          ]
+        },
+        {
+          "text": "Which of these are valid reasons to create a custom object instead of extending a system object?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Custom objects are for standalone records (wishlists, integration payloads, lookup tables) with their own keys and lifecycle. Product/Profile/Order attributes belong on those system objects. Custom objects can be site or organization scoped and can be used from jobs and storefronts.",
+          "options": [
+            { "text": "You need a standalone keyed record that is not a product, order, or customer", "correct": true },
+            { "text": "You want extra attributes on Product — that should be a custom object", "correct": false },
+            { "text": "A job must persist integration state between runs", "correct": true },
+            { "text": "You need organization- or site-scoped configuration rows", "correct": true }
+          ]
+        },
+        {
+          "text": "What does ISML provide in SFRA templates?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "ISML is the server-side template language: tags like isprint, isif, isloop, isinclude, isdecorate, iscache. Client-side rendering is still HTML/JS; ISML runs on the app server.",
+          "options": [
+            { "text": "A React runtime hosted inside Business Manager", "correct": false },
+            { "text": "Server-side templating tags compiled to the storefront response", "correct": true },
+            { "text": "The only way to call OCAPI from a controller", "correct": false },
+            { "text": "A replacement for the cartridge path", "correct": false }
+          ]
+        },
+        {
+          "text": "A custom cartridge should generally contain which of the following, rather than a fork of SFRA base?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Keep overlays thin: extra controllers that extend, template overrides for the files you actually change, static files, hooks, and config. Avoid copying the entire app_storefront_base tree.",
+          "options": [
+            { "text": "Route extensions using superModule", "correct": true },
+            { "text": "Only the ISML templates you actually override", "correct": true },
+            { "text": "A full copy of app_storefront_base renamed to app_custom_all", "correct": false },
+            { "text": "hooks.json plus hook scripts for the extension points you need", "correct": true }
+          ]
+        },
+        {
+          "text": "dw.order.calculate is invoked. Multiple cartridges define the same hook. What happens?",
+          "type": "single",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "Hook execution follows cartridge path order. Each implementation can run (depending on the hook type). For calculate, custom cartridges typically call the base tax/shipping/total logic or replace it carefully. Last-write-wins is not the model — path order and whether the hook is a chain vs extension matters. The platform walks registered implementations in cartridge path order.",
+          "options": [
+            { "text": "Only the last cartridge on the path runs; others are ignored", "correct": false },
+            { "text": "Registered implementations run in cartridge path order", "correct": true },
+            { "text": "Hooks are merged alphabetically by script name", "correct": false },
+            { "text": "Business Manager picks a winner at replication time", "correct": false }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "data",
+      "title": "Catalog, Jobs & Imports",
+      "description": "Catalogs, price books, inventory lists, XML imports, custom jobs, and how merchandising data is structured.",
+      "icon": "data",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 5,
+      "questions": [
+        {
+          "text": "A product’s list price is missing on the storefront. Which object is the usual source of list prices?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "Prices come from price books assigned to the site, not from the catalog XML itself (aside from optional product-level flags). Inventory lists hold ATS/allocation. Catalogs hold product/category structure.",
+          "options": [
+            { "text": "The assigned price book", "correct": true },
+            { "text": "The inventory list’s ATS field", "correct": false },
+            { "text": "The eCDN edge dictionary", "correct": false },
+            { "text": "The OCAPI Meta document", "correct": false }
+          ]
+        },
+        {
+          "text": "Which objects are assigned at site level to merchandize a storefront?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "A site is bound to one or more catalogs (navigation + product), price books, and an inventory list. Cartridges are assigned via the cartridge path on the site. Realms are not assigned per site.",
+          "options": [
+            { "text": "Catalogs", "correct": true },
+            { "text": "Price books", "correct": true },
+            { "text": "Inventory list", "correct": true },
+            { "text": "A realm", "correct": false }
+          ]
+        },
+        {
+          "text": "What is a common, platform-native way to load catalog and price book data?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "Standard XML import (via BM, WebDAV drop, or jobs) is the native bulk path. There is no required Salesforce SQL import. Direct Production BM edits are possible but not the scalable integration pattern.",
+          "options": [
+            { "text": "SQL INSERT into dw_catalog", "correct": false },
+            { "text": "XML import (Business Manager, WebDAV, or a job step)", "correct": true },
+            { "text": "Posting ISML files to /on/demandware.store", "correct": false },
+            { "text": "Editing production catalogs by hand every night", "correct": false }
+          ]
+        },
+        {
+          "text": "You need a nightly feed to update inventory. What is the most appropriate SFCC mechanism?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "A scheduled job (custom job step or standard import step) pulling from WebDAV/SFTP/HTTP is the usual pattern. Storefront controllers should not be the integration endpoint for nightly feeds.",
+          "options": [
+            { "text": "A scheduled job with an import or custom Execute script step", "correct": true },
+            { "text": "A storefront controller hit by shoppers that writes inventory", "correct": false },
+            { "text": "A Page Designer component that calls the ERP on each render", "correct": false },
+            { "text": "Replicating the sandbox to production every night", "correct": false }
+          ]
+        },
+        {
+          "text": "Which statements about catalog structure are correct?",
+          "type": "multi",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "Storefront navigation catalogs define category trees. Product catalogs own product records. Sites can be assigned a storefront catalog and share a product catalog. Variants belong to a master. Inventory is not stored in the catalog.",
+          "options": [
+            { "text": "A storefront catalog provides the category navigation tree", "correct": true },
+            { "text": "Product masters can have variants with their own SKUs", "correct": true },
+            { "text": "ATS is stored as a category attribute in the catalog", "correct": false },
+            { "text": "The same product catalog can be shared across sites", "correct": true }
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "experience",
+      "title": "Page Designer, Content & Cache",
+      "description": "Page Designer, content assets/slots, page cache, remote includes, and storefront performance basics.",
+      "icon": "experience",
+      "pointsPerQuestion": 10,
+      "passPercent": 70,
+      "sortOrder": 6,
+      "questions": [
+        {
+          "text": "What is Page Designer primarily used for?",
+          "type": "single",
+          "difficulty": "easy",
+          "points": 10,
+          "explanation": "Page Designer lets merchandisers assemble pages from developer-built components and regions, without a full code release for layout changes. It is not the job scheduler or OCAPI console.",
+          "options": [
+            { "text": "Scheduling replication jobs in Business Manager", "correct": false },
+            { "text": "Assembling storefront pages from reusable components and regions", "correct": true },
+            { "text": "Authoring OCAPI resource XML", "correct": false },
+            { "text": "Compiling SFRA SCSS on the sandbox", "correct": false }
+          ]
+        },
+        {
+          "text": "Which caching tools are commonly used on a B2C storefront?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "iscache in ISML, page cache in the web tier, remote includes to split cached vs dynamic fragments, and eCDN in front of the origin. Redis is not a platform-provided storefront cache you configure in BM.",
+          "options": [
+            { "text": "ISML <iscache> / page cache", "correct": true },
+            { "text": "Remote includes for mixed cached/dynamic fragments", "correct": true },
+            { "text": "eCDN in front of the origin", "correct": true },
+            { "text": "A managed Redis cluster per sandbox, enabled in BM", "correct": false }
+          ]
+        },
+        {
+          "text": "Why are expensive third-party HTTP calls inside a storefront controller a problem?",
+          "type": "single",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Storefront threads are limited. Blocking on slow APIs inflates TTFB, kills page cache effectiveness, and can exhaust the app server. Prefer jobs, edge/CDN, or asynchronous patterns.",
+          "options": [
+            { "text": "They always bypass SLAS authentication", "correct": false },
+            { "text": "They block app-server threads, slow TTFB, and undermine page cache", "correct": true },
+            { "text": "OCAPI forbids outbound HTTP from controllers", "correct": false },
+            { "text": "Business Manager will auto-disable the cartridge", "correct": false }
+          ]
+        },
+        {
+          "text": "A content slot is not showing the expected content. Which checks are relevant?",
+          "type": "multi",
+          "difficulty": "medium",
+          "points": 15,
+          "explanation": "Slots are bound by ID in the template, campaign/schedule, customer group/ab test, and site context. Cartridge path rarely hides a slot unless the template itself was overridden. Inventory lists do not drive CMS slots.",
+          "options": [
+            { "text": "The slot ID in ISML matches the slot configuration", "correct": true },
+            { "text": "The campaign schedule and qualifiers include this shopper/site", "correct": true },
+            { "text": "The inventory list has ATS > 0 for the slot", "correct": false },
+            { "text": "The rendering template used by the slot still exists on the cartridge path", "correct": true }
+          ]
+        },
+        {
+          "text": "When should you use a remote include instead of rendering everything in one controller?",
+          "type": "single",
+          "difficulty": "hard",
+          "points": 25,
+          "explanation": "Remote includes let you cache the shell of a page while keeping a small dynamic fragment (mini-cart, logged-in header) uncached or cached differently. They are not a replacement for jobs or OCAPI.",
+          "options": [
+            { "text": "When most of the page can be cached but one fragment must stay dynamic", "correct": true },
+            { "text": "Whenever you call OCAPI from ISML", "correct": false },
+            { "text": "Only for Page Designer pages on production", "correct": false },
+            { "text": "To replicate code from staging without a code version", "correct": false }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SFCC Skills Arena</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/"><span class="mark">SA</span> SFCC Skills Arena</a>
+      <a class="ghost" href="#auth">Sign in</a>
+    </header>
+    <main class="wrap hero">
+      <section>
+        <div class="kicker">Commerce Cloud practice ground</div>
+        <h1>Learn the path.<br />Earn the points.<br />Own the leaderboard.</h1>
+        <p class="lede">
+          Tracks for B2C architecture, SFRA, OCAPI/SCAPI, hooks, catalog jobs, and Page Designer.
+          Each question has a point value. First-time correct answers land on an append-only ledger
+          so the team scoreboard stays honest.
+        </p>
+        <div class="stats">
+          <div class="stat"><b>6</b><span>learning tracks</span></div>
+          <div class="stat"><b>30</b><span>graded questions</span></div>
+          <div class="stat"><b>1×</b><span>points per question</span></div>
+        </div>
+      </section>
+      <section class="auth-card" id="auth">
+        <div class="tabs">
+          <button type="button" id="tab-login" class="active">Sign in</button>
+          <button type="button" id="tab-register">Create account</button>
+        </div>
+        <form id="login-form">
+          <label>Email</label>
+          <input name="email" type="email" autocomplete="username" required />
+          <label>Password</label>
+          <input name="password" type="password" autocomplete="current-password" required />
+          <button class="btn full" type="submit">Enter the arena</button>
+        </form>
+        <form id="register-form" class="hidden">
+          <label>Name</label>
+          <input name="name" required minlength="2" />
+          <label>Email</label>
+          <input name="email" type="email" required />
+          <label>Password</label>
+          <input name="password" type="password" minlength="8" required />
+          <button class="btn full" type="submit">Join the team</button>
+        </form>
+        <div id="auth-error" class="error hidden"></div>
+        <div class="demo">
+          Demo: <code>alex@arena.local</code> / <code>demo1234</code><br />
+          Admin: <code>admin@arena.local</code> / <code>ChangeMe!admin</code>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/js/landing.js"></script>
+  </body>
+</html>

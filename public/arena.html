@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Arena · SFCC Skills</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/styles.css" />
+  </head>
+  <body>
+    <header class="topbar app-bar">
+      <a class="brand" href="#/tracks"><span class="mark">SA</span> SFCC Skills Arena</a>
+      <nav class="nav">
+        <a href="#/tracks" data-nav="tracks">Tracks</a>
+        <a href="#/leaderboard" data-nav="leaderboard">Leaderboard</a>
+        <a href="#/progress" data-nav="progress">My progress</a>
+        <a href="#/admin" data-nav="admin" id="admin-nav" class="hidden">Admin</a>
+      </nav>
+      <div class="userchip">
+        <span id="who"></span>
+        <span class="points-pill" id="my-points">0 pts</span>
+        <button class="ghost" id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+    <main class="wrap page" id="app">Loading…</main>
+    <script type="module" src="/js/arena.js"></script>
+  </body>
+</html>
