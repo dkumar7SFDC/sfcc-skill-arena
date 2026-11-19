@@ -29,6 +29,8 @@ jobs:
           npm install -g @google/clasp@2.4.2
           echo "clasp $(clasp --version)"
           echo "node $(node -v)"
+          # Install jq for the credentials-shape fix below
+          sudo apt-get update -qq && sudo apt-get install -y -qq jq
 
       - name: Sanity-check secrets (redacted)
         env:
@@ -47,15 +49,36 @@ jobs:
       - name: Rebuild Questions.gs from questions.json
         run: node appscript/build_questions_gs.mjs
 
-      - name: Write clasp credentials
+      - name: Write clasp credentials (handles both legacy & modern shapes)
         env:
           CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
         run: |
+          set -euo pipefail
           if [ -z "$CLASPRC_JSON" ]; then
-            echo "::error::CLASPRC_JSON secret is missing. See appscript/README.md."
+            echo "::error::CLASPRC_JSON secret is missing."
             exit 1
           fi
-          printf '%s' "$CLASPRC_JSON" > "$HOME/.clasprc.json"
+          # The secret might be either shape depending on when you ran `clasp login`:
+          #   - modern wrapper:  {"token":{access_token,refresh_token,...}, "oauth2ClientSettings":{...}, "isLocalCreds":false}
+          #   - legacy flat:     {access_token, refresh_token, scope, token_type, id_token, expiry_date}
+          # clasp 2.4.2's webapp code path needs the flat shape, written to BOTH
+          # ~/.clasprc.json (global) AND the project's local .clasprc.json.
+          printf '%s' "$CLASPRC_JSON" > /tmp/raw.json
+          if jq -e '.token.access_token' /tmp/raw.json >/dev/null 2>&1; then
+            echo "Detected modern (nested) shape — flattening .token"
+            jq '.token' /tmp/raw.json > /tmp/flat.json
+          elif jq -e '.access_token' /tmp/raw.json >/dev/null 2>&1; then
+            echo "Detected legacy (flat) shape — using as-is"
+            cp /tmp/raw.json /tmp/flat.json
+          else
+            echo "::error::CLASPRC_JSON doesn't contain an access_token (checked both .token.access_token and .access_token)."
+            echo "First 40 chars (redacted keys): $(jq 'with_entries(.value = "***")' /tmp/raw.json | head -c 200)"
+            exit 1
+          fi
+          # Write both locations so clasp finds it regardless of which path it takes.
+          cp /tmp/flat.json "$HOME/.clasprc.json"
+          cp /tmp/flat.json appscript/.clasprc.json
+          echo "Wrote ~/.clasprc.json and appscript/.clasprc.json"
 
       - name: Write .clasp.json for this project
         env:
