@@ -18,14 +18,31 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install clasp
-        run: npm install -g @google/clasp@2.4.2
+        run: |
+          npm install -g @google/clasp@2.4.2
+          echo "clasp $(clasp --version)"
+          echo "node $(node -v)"
+
+      - name: Sanity-check secrets (redacted)
+        env:
+          APPS_SCRIPT_ID: ${{ secrets.APPS_SCRIPT_ID }}
+          APPS_SCRIPT_DEPLOYMENT_ID: ${{ secrets.APPS_SCRIPT_DEPLOYMENT_ID }}
+          CLASPRC_JSON: ${{ secrets.CLASPRC_JSON }}
+        run: |
+          mask() { local v="$1"; local n=${#v}; if [ "$n" -le 10 ]; then echo "(len=$n)"; else echo "${v:0:6}…${v: -4} (len=$n)"; fi; }
+          echo "APPS_SCRIPT_ID            : $(mask "$APPS_SCRIPT_ID")"
+          echo "APPS_SCRIPT_DEPLOYMENT_ID : $(mask "$APPS_SCRIPT_DEPLOYMENT_ID")"
+          echo "CLASPRC_JSON length       : ${#CLASPRC_JSON} bytes"
+          if echo "$APPS_SCRIPT_ID" | grep -q "^AKfyc"; then
+            echo "::warning::APPS_SCRIPT_ID starts with AKfyc — looks like a deployment ID, not a scriptId. These are different!"
+          fi
 
       - name: Rebuild Questions.gs from questions.json
         run: node appscript/build_questions_gs.mjs
